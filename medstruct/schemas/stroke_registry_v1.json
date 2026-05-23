@@ -1,0 +1,154 @@
+{
+  "id": "stroke_registry_v1",
+  "name": "脑卒中专病库示例 Schema",
+  "version": "0.1.0",
+  "description": "第一阶段示例：用脑卒中变量验证通用病历结构化产品能力。",
+  "domain": "clinical_registry",
+  "tags": ["脑卒中", "专病库", "示例"],
+  "fields": [
+    {
+      "id": "chief_complaint",
+      "name": "主诉",
+      "section": "主诉",
+      "description": "患者本次入院主要症状和持续时间。",
+      "required": true,
+      "keywords": ["主诉"],
+      "regex_patterns": ["主诉[:：](?P<value>[^\\n。；;]+)"],
+      "examples": ["言语不清、右肢无力1天余"]
+    },
+    {
+      "id": "onset_duration",
+      "name": "主诉时间",
+      "section": "主诉",
+      "data_type": "duration",
+      "description": "主诉中疾病或症状持续时间。",
+      "keywords": ["小时", "天", "日", "月", "年"],
+      "regex_patterns": ["(?P<value>\\d+(?:\\.\\d+)?\\s*(?:小时|h|天|日|月|年)余?)"],
+      "examples": ["1天余", "5小时"]
+    },
+    {
+      "id": "hypertension",
+      "name": "是否高血压",
+      "section": "既往史",
+      "data_type": "enum",
+      "keywords": ["高血压"],
+      "enum": ["是", "否"],
+      "strategies": ["rule", "llm"]
+    },
+    {
+      "id": "diabetes",
+      "name": "是否糖尿病",
+      "section": "既往史",
+      "data_type": "enum",
+      "keywords": ["糖尿病"],
+      "enum": ["是", "否"],
+      "strategies": ["rule", "llm"]
+    },
+    {
+      "id": "atrial_fibrillation",
+      "name": "是否房颤",
+      "section": "既往史",
+      "data_type": "enum",
+      "keywords": ["房颤", "心房颤动"],
+      "enum": ["是", "否"],
+      "strategies": ["rule", "llm"]
+    },
+    {
+      "id": "limb_weakness",
+      "name": "是否肢体无力",
+      "section": "现病史",
+      "data_type": "enum",
+      "keywords": ["肢体无力", "无力", "偏瘫"],
+      "enum": ["是", "否"],
+      "strategies": ["rule", "llm"]
+    },
+    {
+      "id": "speech_disorder",
+      "name": "是否语言障碍",
+      "section": "现病史",
+      "data_type": "enum",
+      "keywords": ["言语不清", "构音障碍", "失语", "语言"],
+      "enum": ["是", "否"],
+      "strategies": ["rule", "llm"]
+    },
+    {
+      "id": "water_choking",
+      "name": "是否饮水呛咳",
+      "section": "现病史",
+      "data_type": "enum",
+      "keywords": ["饮水呛咳", "呛咳"],
+      "enum": ["是", "否"],
+      "strategies": ["rule", "llm"]
+    },
+    {
+      "id": "headache",
+      "name": "是否头痛",
+      "section": "现病史",
+      "data_type": "enum",
+      "keywords": ["头痛"],
+      "enum": ["是", "否"],
+      "strategies": ["rule", "llm"]
+    },
+    {
+      "id": "systolic_bp",
+      "name": "收缩压",
+      "section": "查体",
+      "data_type": "measurement",
+      "keywords": ["BP", "血压", "mmHg"],
+      "regex_patterns": ["(?:BP|血压)[^\\n。；;]{0,16}?(?P<value>\\d{2,3})(?=/\\d{2,3}\\s*mmHg)"],
+      "examples": ["151mmHg"]
+    },
+    {
+      "id": "diastolic_bp",
+      "name": "舒张压",
+      "section": "查体",
+      "data_type": "measurement",
+      "keywords": ["BP", "血压", "mmHg"],
+      "regex_patterns": ["(?:BP|血压)[^\\n。；;]{0,20}?\\d{2,3}/(?P<value>\\d{2,3})\\s*mmHg"],
+      "examples": ["87mmHg"]
+    },
+    {
+      "id": "nihss_in",
+      "name": "入院NIHSS评分",
+      "data_type": "number",
+      "keywords": ["NIHSS"],
+      "regex_patterns": ["(?:入院)?\\s*NIHSS(?:评分)?\\s*[:：]?\\s*(?P<value>\\d{1,2})\\s*分?"],
+      "examples": ["11"]
+    },
+    {
+      "id": "acute_infarction",
+      "name": "是否急性脑梗死",
+      "section": "辅助检查",
+      "data_type": "enum",
+      "keywords": ["急性脑梗死", "脑梗死", "DWI高信号"],
+      "enum": ["是", "否"],
+      "strategies": ["rule", "llm"]
+    },
+    {
+      "id": "cerebral_hemorrhage",
+      "name": "是否脑出血",
+      "section": "辅助检查",
+      "data_type": "enum",
+      "keywords": ["脑出血", "出血", "高密度影"],
+      "enum": ["是", "否"],
+      "strategies": ["rule", "llm"]
+    },
+    {
+      "id": "imaging_summary",
+      "name": "影像摘要",
+      "section": "辅助检查",
+      "description": "与头 CT/MR/MRA/CTA/DSA 相关的检查发现。",
+      "keywords": ["头CT", "头MR", "MRI", "MRA", "CTA", "DWI"],
+      "regex_patterns": ["(?P<value>(?:头CT|头MR|头MRI|MRI|MRA|CTA|DSA)[^\\n。；;]+)"],
+      "examples": ["头MR示右侧基底节、半卵圆中心DWI高信号"]
+    },
+    {
+      "id": "diagnosis",
+      "name": "诊断",
+      "section": "诊断",
+      "keywords": ["诊断"],
+      "regex_patterns": ["(?:入院诊断|出院诊断|诊断)[:：](?P<value>[^\\n]+)"],
+      "examples": ["急性脑梗死"]
+    }
+  ]
+}

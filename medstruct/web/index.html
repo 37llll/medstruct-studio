@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>MedStruct Studio</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">M</div>
+          <div>
+            <div class="brand-name">MedStruct Studio</div>
+            <div class="brand-subtitle">中文病历结构化抽取</div>
+          </div>
+        </div>
+
+        <label class="field-label" for="schemaSelect">Schema</label>
+        <select id="schemaSelect" class="select"></select>
+
+        <div class="schema-meta" id="schemaMeta"></div>
+
+        <div class="panel compact">
+          <div class="panel-title">模型</div>
+          <label class="switch-row">
+            <input id="llmEnabled" type="checkbox" />
+            <span>启用本地/兼容模型</span>
+          </label>
+          <input id="llmBase" class="input" value="http://localhost:11434/v1" />
+          <input id="llmModel" class="input" placeholder="qwen2.5:7b / 本地模型名" />
+          <input id="llmKey" class="input" placeholder="API Key，可留空" type="password" />
+        </div>
+
+        <div class="panel compact">
+          <div class="panel-title">字段</div>
+          <div id="fieldList" class="field-list"></div>
+        </div>
+      </aside>
+
+      <main class="workspace">
+        <header class="topbar">
+          <div class="tabs" role="tablist">
+            <button class="tab active" data-tab="input">原文</button>
+            <button class="tab" data-tab="cleaned">清洗后</button>
+            <button class="tab" data-tab="schema">Schema JSON</button>
+          </div>
+          <div class="actions">
+            <button id="loadExampleBtn" class="icon-button" title="载入示例"><i data-lucide="file-text"></i></button>
+            <button id="extractBtn" class="primary-button"><i data-lucide="sparkles"></i><span>抽取</span></button>
+            <button id="exportBtn" class="icon-button" title="导出 JSON"><i data-lucide="download"></i></button>
+          </div>
+        </header>
+
+        <section class="editor-area">
+          <textarea id="documentInput" class="editor tab-pane active" spellcheck="false"></textarea>
+          <pre id="cleanedPreview" class="preview tab-pane"></pre>
+          <textarea id="schemaEditor" class="editor tab-pane" spellcheck="false"></textarea>
+        </section>
+      </main>
+
+      <aside class="results">
+        <div class="metrics" id="metrics"></div>
+        <div class="result-header">
+          <div>
+            <h1>抽取结果</h1>
+            <p id="jobInfo">等待抽取</p>
+          </div>
+          <button id="reviewOnlyBtn" class="ghost-button"><i data-lucide="filter"></i><span>复核</span></button>
+        </div>
+        <div id="warnings" class="warnings"></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>字段</th>
+                <th>值</th>
+                <th>置信度</th>
+                <th>策略</th>
+              </tr>
+            </thead>
+            <tbody id="resultRows"></tbody>
+          </table>
+        </div>
+        <div class="evidence-panel">
+          <div class="panel-title">证据句</div>
+          <div id="evidenceText" class="evidence-text">选择一行查看证据</div>
+        </div>
+      </aside>
+    </div>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

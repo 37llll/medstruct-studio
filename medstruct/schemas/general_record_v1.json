@@ -1,0 +1,62 @@
+{
+  "id": "general_record_v1",
+  "name": "通用中文病历 Schema",
+  "version": "0.1.0",
+  "description": "不绑定专病的基础病历结构化模板，可作为新科室 schema 的起点。",
+  "domain": "general_emr",
+  "tags": ["通用", "入院记录", "出院记录"],
+  "fields": [
+    {
+      "id": "chief_complaint",
+      "name": "主诉",
+      "section": "主诉",
+      "required": true,
+      "keywords": ["主诉"],
+      "regex_patterns": ["主诉[:：](?P<value>[^\\n。；;]+)"]
+    },
+    {
+      "id": "present_history",
+      "name": "现病史",
+      "section": "现病史",
+      "keywords": ["现病史"],
+      "regex_patterns": ["现病史[:：](?P<value>[\\s\\S]{20,800}?)(?:\\n既往史|\\n查体|\\n体格检查|$)"]
+    },
+    {
+      "id": "past_history",
+      "name": "既往史",
+      "section": "既往史",
+      "keywords": ["既往史"],
+      "regex_patterns": ["既往史[:：](?P<value>[\\s\\S]{10,600}?)(?:\\n个人史|\\n家族史|\\n查体|$)"]
+    },
+    {
+      "id": "temperature",
+      "name": "体温",
+      "section": "查体",
+      "data_type": "measurement",
+      "keywords": ["T", "体温", "℃"],
+      "regex_patterns": ["(?:T|体温)\\s*[:：]?\\s*(?P<value>\\d{2}(?:\\.\\d)?\\s*℃?)"]
+    },
+    {
+      "id": "pulse",
+      "name": "脉搏",
+      "section": "查体",
+      "data_type": "measurement",
+      "keywords": ["P", "脉搏", "次/分"],
+      "regex_patterns": ["(?:P|脉搏)\\s*[:：]?\\s*(?P<value>\\d{2,3}\\s*次/分?)"]
+    },
+    {
+      "id": "discharge_diagnosis",
+      "name": "出院诊断",
+      "section": "诊断",
+      "keywords": ["出院诊断"],
+      "regex_patterns": ["出院诊断[:：](?P<value>[^\\n]+)"]
+    },
+    {
+      "id": "discharge_medication",
+      "name": "出院带药",
+      "section": "出院医嘱",
+      "keywords": ["出院带药", "带药"],
+      "regex_patterns": ["出院带药[:：]?(?P<value>[^\\n。；;]+)"]
+    }
+  ]
+}
