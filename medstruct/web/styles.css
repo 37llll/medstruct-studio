@@ -95,6 +95,10 @@ textarea {
   font-weight: 700;
 }
 
+.top-space {
+  margin-top: 12px;
+}
+
 .select,
 .input {
   width: 100%;
@@ -236,6 +240,11 @@ textarea {
   color: var(--muted);
 }
 
+.ghost-button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .editor-area {
   min-height: 0;
   padding: 18px;
@@ -304,6 +313,13 @@ textarea {
 
 .result-header p {
   margin: 0;
+}
+
+.result-tools {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 140px;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
 .warnings {
@@ -454,5 +470,9 @@ svg {
     align-items: flex-start;
     padding: 12px;
     flex-direction: column;
+  }
+
+  .result-tools {
+    grid-template-columns: 1fr;
   }
 }

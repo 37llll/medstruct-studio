@@ -10,7 +10,7 @@ It turns messy clinical text, HTML, table paste, and JSON-like EMR payloads into
 - Hybrid extraction: regex, deterministic rules, keyword pre-filtering, and optional OpenAI-compatible local models.
 - Dirty data cleanup: HTML, JSON payloads, EMR whitespace, table-like pasted content.
 - Evidence-first output: source sentence, source offsets, strategy, confidence, and review flag for every field.
-- Product UI: schema selection/editing, model configuration, extraction result table, evidence review, and JSON export.
+- Product UI: schema selection/editing, demo switching, model configuration, extraction result table, search/filter, evidence review, and JSON/CSV export.
 
 ## Quick Start
 
@@ -66,7 +66,16 @@ Example request:
 python -m unittest discover medstruct\tests
 ```
 
+## Release Audit
+
+Before making the repository public or publishing a release, run:
+
+```bash
+python scripts/audit_release.py
+```
+
+The audit blocks obvious local secrets, private IPs, and real clinical identifiers. Demo documents are synthetic and must stay synthetic.
+
 ## Repository Hygiene
 
 This repository intentionally contains only the clean product layer. Historical hospital-specific project code, real patient data, internal API addresses, and local API keys should not be committed here.
-

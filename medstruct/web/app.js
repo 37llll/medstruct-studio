@@ -1,5 +1,6 @@
 const state = {
   schemas: [],
+  examples: [],
   currentSchema: null,
   lastResponse: null,
   reviewOnly: false,
@@ -30,6 +31,13 @@ async function init() {
   $("schemaSelect").innerHTML = state.schemas
     .map((schema) => `<option value="${schema.id}">${schema.name}</option>`)
     .join("");
+
+  const examples = await getJson("/api/examples");
+  state.examples = examples.examples;
+  $("exampleSelect").innerHTML = state.examples
+    .map((example) => `<option value="${example.id}">${example.name}</option>`)
+    .join("");
+
   await loadSchema(state.schemas[0].id);
   await loadExample();
   if (window.lucide) window.lucide.createIcons();
@@ -40,7 +48,10 @@ function bindEvents() {
   $("loadExampleBtn").addEventListener("click", loadExample);
   $("extractBtn").addEventListener("click", extract);
   $("exportBtn").addEventListener("click", exportJson);
+  $("exportCsvBtn").addEventListener("click", exportCsv);
   $("reviewOnlyBtn").addEventListener("click", toggleReviewOnly);
+  $("resultSearch").addEventListener("input", applyResultFilters);
+  $("confidenceFilter").addEventListener("change", applyResultFilters);
   document.querySelectorAll(".tab").forEach((button) => {
     button.addEventListener("click", () => activateTab(button.dataset.tab));
   });
@@ -60,10 +71,9 @@ async function loadSchema(schemaId) {
 }
 
 async function loadExample() {
-  const data = await getJson("/api/examples");
-  const dirty = data.examples.find((item) => item.id === "dirty_payload");
-  const clean = data.examples.find((item) => item.id === "stroke_admission");
-  $("documentInput").value = (clean || dirty || data.examples[0]).content;
+  const selected = $("exampleSelect").value;
+  const example = state.examples.find((item) => item.id === selected) || state.examples[0];
+  if (example) $("documentInput").value = example.content;
 }
 
 async function extract() {
@@ -130,9 +140,8 @@ function renderRows(results) {
   $("resultRows").innerHTML = results
     .map((item, index) => {
       const reviewClass = item.needs_review ? "needs-review" : "";
-      const hidden = state.reviewOnly && !item.needs_review ? "hidden-review" : "";
       return `
-        <tr class="${reviewClass} ${hidden}" data-index="${index}">
+        <tr class="${reviewClass}" data-index="${index}">
           <td>${escapeHtml(item.name)}</td>
           <td>${escapeHtml(item.value || "")}</td>
           <td><span class="badge ${item.confidence}">${item.confidence}</span></td>
@@ -142,6 +151,21 @@ function renderRows(results) {
     .join("");
   document.querySelectorAll("#resultRows tr").forEach((row) => {
     row.addEventListener("click", () => selectEvidence(Number(row.dataset.index)));
+  });
+  applyResultFilters();
+}
+
+function applyResultFilters() {
+  const query = $("resultSearch").value.trim().toLowerCase();
+  const confidence = $("confidenceFilter").value;
+  document.querySelectorAll("#resultRows tr").forEach((row) => {
+    const item = state.lastResponse?.results?.[Number(row.dataset.index)];
+    if (!item) return;
+    const text = `${item.name} ${item.value} ${item.strategy}`.toLowerCase();
+    const matchesQuery = !query || text.includes(query);
+    const matchesConfidence = !confidence || item.confidence === confidence;
+    const matchesReview = !state.reviewOnly || item.needs_review;
+    row.classList.toggle("hidden-review", !(matchesQuery && matchesConfidence && matchesReview));
   });
 }
 
@@ -167,18 +191,46 @@ function activateTab(tab) {
 function toggleReviewOnly() {
   state.reviewOnly = !state.reviewOnly;
   $("reviewOnlyBtn").classList.toggle("active", state.reviewOnly);
-  if (state.lastResponse) renderRows(state.lastResponse.results);
+  applyResultFilters();
 }
 
 function exportJson() {
   if (!state.lastResponse) return;
   const blob = new Blob([JSON.stringify(state.lastResponse, null, 2)], { type: "application/json;charset=utf-8" });
+  downloadBlob(blob, `medstruct-${state.lastResponse.job_id}.json`);
+}
+
+function exportCsv() {
+  if (!state.lastResponse) return;
+  const rows = [
+    ["field_id", "name", "value", "confidence", "strategy", "needs_review", "source_sentence"],
+    ...state.lastResponse.results.map((item) => [
+      item.field_id,
+      item.name,
+      item.value || "",
+      item.confidence,
+      item.strategy,
+      String(item.needs_review),
+      item.source_sentence || "",
+    ]),
+  ];
+  const csv = rows.map((row) => row.map(csvCell).join(",")).join("\n");
+  const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+  downloadBlob(blob, `medstruct-${state.lastResponse.job_id}.csv`);
+}
+
+function downloadBlob(blob, filename) {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `medstruct-${state.lastResponse.job_id}.json`;
+  link.download = filename;
   link.click();
   URL.revokeObjectURL(url);
+}
+
+function csvCell(value) {
+  const text = String(value ?? "");
+  return `"${text.replaceAll('"', '""')}"`;
 }
 
 function escapeHtml(value) {

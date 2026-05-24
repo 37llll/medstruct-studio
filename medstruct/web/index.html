@@ -21,6 +21,9 @@
         <label class="field-label" for="schemaSelect">Schema</label>
         <select id="schemaSelect" class="select"></select>
 
+        <label class="field-label top-space" for="exampleSelect">示例</label>
+        <select id="exampleSelect" class="select"></select>
+
         <div class="schema-meta" id="schemaMeta"></div>
 
         <div class="panel compact">
@@ -51,6 +54,7 @@
             <button id="loadExampleBtn" class="icon-button" title="载入示例"><i data-lucide="file-text"></i></button>
             <button id="extractBtn" class="primary-button"><i data-lucide="sparkles"></i><span>抽取</span></button>
             <button id="exportBtn" class="icon-button" title="导出 JSON"><i data-lucide="download"></i></button>
+            <button id="exportCsvBtn" class="icon-button" title="导出 CSV"><i data-lucide="table"></i></button>
           </div>
         </header>
 
@@ -69,6 +73,16 @@
             <p id="jobInfo">等待抽取</p>
           </div>
           <button id="reviewOnlyBtn" class="ghost-button"><i data-lucide="filter"></i><span>复核</span></button>
+        </div>
+        <div class="result-tools">
+          <input id="resultSearch" class="input" placeholder="搜索字段或值" />
+          <select id="confidenceFilter" class="select">
+            <option value="">全部置信度</option>
+            <option value="HIGH">HIGH</option>
+            <option value="MEDIUM">MEDIUM</option>
+            <option value="LOW">LOW</option>
+            <option value="EMPTY">EMPTY</option>
+          </select>
         </div>
         <div id="warnings" class="warnings"></div>
         <div class="table-wrap">
