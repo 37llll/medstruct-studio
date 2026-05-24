@@ -27,6 +27,12 @@
         <div class="schema-meta" id="schemaMeta"></div>
 
         <div class="panel compact">
+          <div class="panel-title">Schema 质量</div>
+          <div id="schemaQuality" class="quality-card">等待校验</div>
+          <div id="schemaIssues" class="issue-list"></div>
+        </div>
+
+        <div class="panel compact">
           <div class="panel-title">模型</div>
           <label class="switch-row">
             <input id="llmEnabled" type="checkbox" />
@@ -52,6 +58,7 @@
           </div>
           <div class="actions">
             <button id="loadExampleBtn" class="icon-button" title="载入示例"><i data-lucide="file-text"></i></button>
+            <button id="validateSchemaBtn" class="icon-button" title="校验 Schema"><i data-lucide="check-circle-2"></i></button>
             <button id="extractBtn" class="primary-button"><i data-lucide="sparkles"></i><span>抽取</span></button>
             <button id="exportBtn" class="icon-button" title="导出 JSON"><i data-lucide="download"></i></button>
             <button id="exportCsvBtn" class="icon-button" title="导出 CSV"><i data-lucide="table"></i></button>
@@ -101,6 +108,10 @@
         <div class="evidence-panel">
           <div class="panel-title">证据句</div>
           <div id="evidenceText" class="evidence-text">选择一行查看证据</div>
+        </div>
+        <div class="evidence-panel">
+          <div class="panel-title">抽取画像</div>
+          <div id="profileText" class="profile-text">完成抽取后查看策略分布</div>
         </div>
       </aside>
     </div>

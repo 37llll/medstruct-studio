@@ -10,7 +10,8 @@ It turns messy clinical text, HTML, table paste, and JSON-like EMR payloads into
 - Hybrid extraction: regex, deterministic rules, keyword pre-filtering, and optional OpenAI-compatible local models.
 - Dirty data cleanup: HTML, JSON payloads, EMR whitespace, table-like pasted content.
 - Evidence-first output: source sentence, source offsets, strategy, confidence, and review flag for every field.
-- Product UI: schema selection/editing, demo switching, model configuration, extraction result table, search/filter, evidence review, and JSON/CSV export.
+- Schema quality checks: duplicate field ids, invalid regex, incomplete strategies, and readiness score.
+- Product UI: schema selection/editing, schema validation, demo switching, model configuration, extraction result table, search/filter, evidence review, extraction profile, and JSON/CSV export.
 
 ## Quick Start
 
@@ -46,6 +47,7 @@ GET /api/schemas
 GET /api/schemas/{schema_id}
 GET /api/examples
 POST /api/extract
+POST /api/schemas/validate
 ```
 
 Example request:

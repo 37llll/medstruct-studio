@@ -211,14 +211,21 @@ class ExtractionEngine:
     def _build_metrics(self, results: Iterable[FieldExtraction], elapsed_ms: float) -> Dict[str, object]:
         results = list(results)
         strategy_counts = Counter(item.strategy for item in results)
+        confidence_counts = Counter(item.confidence.value for item in results)
+        total = len(results)
+        extracted = sum(1 for item in results if item.value)
+        needs_review = sum(1 for item in results if item.needs_review)
         return {
-            "total_fields": len(results),
-            "extracted_fields": sum(1 for item in results if item.value),
+            "total_fields": total,
+            "extracted_fields": extracted,
             "high_confidence": sum(1 for item in results if item.confidence == Confidence.HIGH),
-            "needs_review": sum(1 for item in results if item.needs_review),
+            "needs_review": needs_review,
             "skipped_by_keyword": sum(1 for item in results if item.strategy == "empty" and item.confidence == Confidence.EMPTY),
             "elapsed_ms": elapsed_ms,
             "strategy_counts": dict(strategy_counts),
+            "confidence_counts": dict(confidence_counts),
+            "completion_rate": round(extracted / total, 4) if total else 0,
+            "review_rate": round(needs_review / total, 4) if total else 0,
         }
 
 

@@ -157,6 +157,60 @@ textarea {
   font-size: 13px;
 }
 
+.quality-card {
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fafbfc;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.quality-score {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.quality-number {
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.quality-status {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.issue-list {
+  display: grid;
+  gap: 6px;
+  max-height: 180px;
+  overflow: auto;
+}
+
+.issue {
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: white;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.issue.error {
+  border-color: #fecaca;
+  background: #fff1f2;
+  color: #7f1d1d;
+}
+
+.issue.warning {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #78350f;
+}
+
 .workspace {
   display: grid;
   grid-template-rows: 58px 1fr;
@@ -422,6 +476,13 @@ tr.hidden-review {
   margin-top: 8px;
   line-height: 1.6;
   color: var(--text);
+}
+
+.profile-text {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
 }
 
 mark {

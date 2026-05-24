@@ -2,6 +2,7 @@ import unittest
 
 from medstruct.core import ExtractionEngine
 from medstruct.core.models import SchemaDefinition
+from medstruct.core.schema_lint import validate_schema
 from medstruct.store import load_schema
 
 
@@ -42,6 +43,25 @@ class ExtractionEngineTest(unittest.TestCase):
         )
         response = ExtractionEngine().extract(schema, "出院医嘱：出院带药：阿司匹林100mg qd。")
         self.assertEqual(response.results[0].value, "阿司匹林100mg qd")
+
+    def test_schema_lint_blocks_bad_regex(self):
+        schema = SchemaDefinition.from_dict(
+            {
+                "id": "bad",
+                "name": "bad",
+                "fields": [
+                    {
+                        "id": "broken",
+                        "name": "坏字段",
+                        "strategies": ["regex"],
+                        "regex_patterns": ["("],
+                    }
+                ],
+            }
+        )
+        report = validate_schema(schema)
+        self.assertEqual(report["status"], "blocked")
+        self.assertEqual(report["error_count"], 1)
 
 
 if __name__ == "__main__":

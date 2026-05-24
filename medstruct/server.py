@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 from .core import ExtractionEngine
 from .core.models import ExtractionOptions, SchemaDefinition
+from .core.schema_lint import validate_schema
 from .store import list_examples, list_schemas, load_schema, load_schema_dict
 
 WEB_DIR = Path(__file__).resolve().parent / "web"
@@ -30,6 +31,10 @@ class ExtractRequest(BaseModel):
     schema_id: Optional[str] = None
     schema: Optional[Dict[str, Any]] = None
     options: Dict[str, Any] = Field(default_factory=dict)
+
+
+class SchemaValidateRequest(BaseModel):
+    schema: Dict[str, Any]
 
 
 @app.get("/")
@@ -71,6 +76,15 @@ def extract(request: ExtractRequest) -> Dict[str, Any]:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@app.post("/api/schemas/validate")
+def validate_schema_endpoint(request: SchemaValidateRequest) -> Dict[str, Any]:
+    try:
+        schema = SchemaDefinition.from_dict(request.schema)
+        return validate_schema(schema)
+    except TypeError as exc:
+        raise HTTPException(status_code=400, detail=f"Schema 格式错误: {exc}") from exc
 
 
 if __name__ == "__main__":

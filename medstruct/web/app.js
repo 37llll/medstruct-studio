@@ -46,6 +46,7 @@ async function init() {
 function bindEvents() {
   $("schemaSelect").addEventListener("change", (event) => loadSchema(event.target.value));
   $("loadExampleBtn").addEventListener("click", loadExample);
+  $("validateSchemaBtn").addEventListener("click", validateCurrentSchema);
   $("extractBtn").addEventListener("click", extract);
   $("exportBtn").addEventListener("click", exportJson);
   $("exportCsvBtn").addEventListener("click", exportCsv);
@@ -68,6 +69,7 @@ async function loadSchema(schemaId) {
   $("fieldList").innerHTML = schema.fields
     .map((field) => `<div class="field-pill"><span>${field.name}</span><span>${field.section || "全文"}</span></div>`)
     .join("");
+  await validateCurrentSchema();
 }
 
 async function loadExample() {
@@ -82,6 +84,11 @@ async function extract() {
   button.querySelector("span").textContent = "抽取中";
   try {
     const schema = JSON.parse($("schemaEditor").value);
+    const quality = await validateCurrentSchema(false);
+    if (quality?.status === "blocked") {
+      alert("Schema 仍有阻断级问题，请先修正后再抽取。");
+      return;
+    }
     const response = await postJson("/api/extract", {
       document: $("documentInput").value,
       schema,
@@ -112,11 +119,13 @@ function renderResponse(response) {
   renderMetrics(response.metrics);
   renderWarnings(response.warnings || []);
   renderRows(response.results || []);
+  renderProfile(response.metrics);
 }
 
 function renderMetrics(metrics) {
+  const completion = `${Math.round((metrics.completion_rate || 0) * 100)}%`;
   const items = [
-    ["字段", metrics.total_fields],
+    ["完成率", completion],
     ["已抽取", metrics.extracted_fields],
     ["高置信", metrics.high_confidence],
     ["复核", metrics.needs_review],
@@ -130,6 +139,57 @@ function renderMetrics(metrics) {
       </div>`
     )
     .join("");
+}
+
+async function validateCurrentSchema(showAlert = true) {
+  try {
+    const schema = JSON.parse($("schemaEditor").value);
+    const report = await postJson("/api/schemas/validate", { schema });
+    renderSchemaQuality(report);
+    return report;
+  } catch (error) {
+    $("schemaQuality").innerHTML = `<div class="quality-score"><span class="quality-number">0</span><span class="quality-status">JSON 错误</span></div>`;
+    $("schemaIssues").innerHTML = `<div class="issue error">${escapeHtml(error.message)}</div>`;
+    if (showAlert) alert(error.message);
+    return null;
+  }
+}
+
+function renderSchemaQuality(report) {
+  $("schemaQuality").innerHTML = `
+    <div class="quality-score">
+      <span class="quality-number">${report.score}</span>
+      <span class="quality-status">${report.status} · ${report.field_count} fields</span>
+    </div>
+    <div>${report.error_count} 错误 · ${report.warning_count} 警告 · ${report.info_count} 提示</div>
+  `;
+  const issues = (report.issues || []).slice(0, 8);
+  $("schemaIssues").innerHTML = issues.length
+    ? issues
+        .map(
+          (issue) => `
+          <div class="issue ${issue.severity}">
+            <strong>${escapeHtml(issue.field_id || "schema")}</strong> · ${escapeHtml(issue.message)}
+            ${issue.suggestion ? `<br><span>${escapeHtml(issue.suggestion)}</span>` : ""}
+          </div>`
+        )
+        .join("")
+    : `<div class="issue">未发现明显配置问题。</div>`;
+}
+
+function renderProfile(metrics) {
+  const strategies = Object.entries(metrics.strategy_counts || {})
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(" · ");
+  const confidence = Object.entries(metrics.confidence_counts || {})
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(" · ");
+  const reviewRate = `${Math.round((metrics.review_rate || 0) * 100)}%`;
+  $("profileText").innerHTML = `
+    <div>复核率：${reviewRate}</div>
+    <div>策略：${escapeHtml(strategies || "无")}</div>
+    <div>置信度：${escapeHtml(confidence || "无")}</div>
+  `;
 }
 
 function renderWarnings(warnings) {
